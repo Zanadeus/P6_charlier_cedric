@@ -109,18 +109,33 @@ exports.setLike = (req, res, next) =>
         let userFound = false;
         let deleteUserPosition = '';
 
+        let userEverLikeIt = false;
+        let userEverDislikeIt = false;
+        let likePositionToDelete = '';
+        let dislikePositionToDelete = '';
+
         /*_______________________DEFINITION DES FONCTIONS_______________________*/
         //On recherche si l'utilisateur a déja noté la sauce
-        function isUserRate(rateArray) 
+        function isUserRateIt() 
         {
-          for (let i = 0; i < rateArray.length; i++) 
+          for (let i = 0; i < usersThatLike.length; i++) 
           {
-            const element = rateArray[i];
-            if (element == userID) 
+            const element = usersThatLike[i];
+            if (element === userID) 
             {
-              userFound = true;
-              console.log(userFound);
-              deleteUserPosition = i;
+              userEverLikeIt = true;
+              console.log('userThatLike = '+userEverLikeIt);
+              likePositionToDelete = i;
+            }
+          }
+          for (let i = 0; i < usersThatDislike.length; i++) 
+          {
+            const element = usersThatDislike[i];
+            if (element === userID) 
+            {
+              userEverDislikeIt = true;
+              console.log('userThatDislike = '+userEverDislikeIt);
+              dislikePositionToDelete = i;
             }
           }
         }
@@ -141,13 +156,6 @@ exports.setLike = (req, res, next) =>
             .then(() => res.status(200).json({ message: 'Mise à jour effectuée'}))
             .catch(error => res.status(400).json({ error }));
         };
-        //fonction nulle en cas d'incohérence avec le frontend
-        function nothingHappen() 
-        {
-          console.log("erreur de traitement de l'action demandée")
-          .then(() => res.status(400).json({ message: 'Echec mise à jour'}))
-          .catch(error => res.status(400).json({ error }));
-        }
         //fonction de développement, on restaure la base de données des likes
         function resetLikes()
         {
@@ -167,15 +175,14 @@ exports.setLike = (req, res, next) =>
         };
 
         /*_______________________COEUR DU LOGICIEL_______________________*/
+        isUserRateIt();
         switch (req.body.like)
         {
           case 1:
-            isUserRate(usersThatLike);
-            //On enregistre l'action de l'utilisateur
-            if (userFound == true) 
+            if (userEverLikeIt == true) 
             {
               //nothingHappen();
-              usersThatLike.splice(deleteUserPosition, 1);
+              usersThatLike.splice(likePositionToDelete, 1);
               sauceLikes-- ;
               updateLikes();
             } 
@@ -187,12 +194,10 @@ exports.setLike = (req, res, next) =>
             }
             break;
           case -1:
-            isUserRate(usersThatDislike);
-            //On enregistre l'action de l'utilisateur
-            if (userFound == true) 
+            if (userEverDislikeIt == true) 
             {
               //nothingHappen();
-              usersThatDislike.splice(deleteUserPosition, 1);
+              usersThatDislike.splice(dislikePositionToDelete, 1);
               sauceDislikes-- ;
               updateLikes();
             } 
@@ -205,20 +210,16 @@ exports.setLike = (req, res, next) =>
             break;
           default:
             console.log("la requête 0 a été sélectionnée.");
-            isUserRate(usersThatLike);
-            //On enregistre l'action de l'utilisateur
-            if (userFound == true) 
+            
+            if (userEverLikeIt == true) 
             {
-              usersThatLike.splice(deleteUserPosition, 1);
+              usersThatLike.splice(likePositionToDelete, 1);
               sauceLikes-- ;
               updateLikes();
             } 
-
-            isUserRate(usersThatDislike);
-            //On enregistre l'action de l'utilisateur
-            if (userFound == true) 
+            if (userEverDislikeIt == true) 
             {
-              usersThatDislike.splice(deleteUserPosition, 1);
+              usersThatDislike.splice(dislikePositionToDelete, 1);
               sauceDislikes-- ;
               updateLikes();
             } 
