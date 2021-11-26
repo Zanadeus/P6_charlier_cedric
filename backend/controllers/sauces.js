@@ -5,7 +5,6 @@ exports.getAllSauces = (req, res, next) => {
   Sauce.find()
   .then(
     (allSauces) => {
-      //console.log(allSauces);
       res.status(200).json(allSauces);
     }
   )
@@ -46,7 +45,6 @@ exports.createSauce = (req, res, next) => {
     usersLiked: ``,
     usersDisliked: ``
   });
-  //console.log(newSauce);
   newSauce.save()
     .then(() => res.status(201).json({ message: 'Nouvelle sauce enregistréé !'}))
     .catch(error => res.status(400).json({ error }));
@@ -156,6 +154,7 @@ exports.setLike = (req, res, next) =>
             .then(() => res.status(200).json({ message: 'Mise à jour effectuée'}))
             .catch(error => res.status(400).json({ error }));
         };
+        /*
         //fonction de développement, on restaure la base de données des likes
         function resetLikes()
         {
@@ -173,7 +172,8 @@ exports.setLike = (req, res, next) =>
             .then(() => res.status(200).json({ message: 'Mise à jour effectuée'}))
             .catch(error => res.status(400).json({ error }));
         };
-
+        */
+        
         /*_______________________COEUR DU LOGICIEL_______________________*/
         isUserRateIt();
         switch (req.body.like)
@@ -181,7 +181,7 @@ exports.setLike = (req, res, next) =>
           case 1:
             if (userEverLikeIt == true) 
             {
-              //nothingHappen();
+              //res.status(401).json({ message : 'Produit déjà liké ! Recliquer pour annuler le vote'});
               usersThatLike.splice(likePositionToDelete, 1);
               sauceLikes-- ;
               updateLikes();
@@ -196,7 +196,7 @@ exports.setLike = (req, res, next) =>
           case -1:
             if (userEverDislikeIt == true) 
             {
-              //nothingHappen();
+              //res.status(401).json({ message : 'Produit déjà disliké ! Recliquer pour annuler le vote'});
               usersThatDislike.splice(dislikePositionToDelete, 1);
               sauceDislikes-- ;
               updateLikes();

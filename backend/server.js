@@ -1,4 +1,4 @@
-const http = require('http');
+const http = require('http'); //OWASP : changer http en https, sous réserve d'avoir un certificat ssl
 const app = require('./app');
 
 /*
@@ -44,7 +44,7 @@ const errorHandler = error => {
   }
 };
 
-const server = http.createServer(app);
+const server = http.createServer(app);//OWASP : changer http en https, sous réserve d'avoir un certificat ssl 
 
 server.on('error', errorHandler);
 server.on('listening', () => {
