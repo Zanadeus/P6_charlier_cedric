@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+//const authWord = 'Bearer';
 
 module.exports = (req, res, next) => {
   try 
