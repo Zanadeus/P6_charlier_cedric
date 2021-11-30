@@ -40,16 +40,31 @@ exports.createSauce = (req, res, next) => {
     ...sauceObject,
     imageUrl: `${req.protocol}://${req.get('host')}/pictures/${req.file.filename}`,
     //imageUrl: `${req.protocol}://127.0.0.1:8081/pictures/${req.file.filename}`,
-    /*
-    likes: `0`,
-    dislikes: `0`,
-    usersLiked: ``,
-    usersDisliked: ``
-    */
   });
+  
+  /*
+  //exclusion des caractères "' = > <", protection contre injection
+  const excludedCharacters = /['=<>]/ ;
+  console.log(sauceObject);
+  let count = 0;
+  for (var entries in sauceObject)
+  {
+    console.log("boucle for lancée");
+    if (sauceObject[entries].match(excludedCharacters) || sauceObject[entries] < 10)
+    {
+      console.log("there is something wrong");
+      throw 'Invalid entries, it should not contain \', =, < or >';
+    }
+    else
+    {
+      count++;
+      console.log(count);
+    }
+  }
+  */
   newSauce.save()
-    .then(() => res.status(201).json({ message: 'Nouvelle sauce enregistréé !'}))
-    .catch(error => res.status(400).json({ error }));
+  .then(() => res.status(201).json({ message: 'Nouvelle sauce enregistréé !'}))
+  .catch(error => res.status(400).json({ error }));
 };
 
 exports.modifySauce = (req, res, next) => {
@@ -93,6 +108,10 @@ exports.deleteSauce = (req, res, next) =>
             .then(() => res.status(200).json({ message: 'Objet supprimé !'}))
             .catch(error => res.status(400).json({ error }));
         });
+      }
+      else
+      {
+        throw 'Invalid user ID';
       }
     })
     .catch(error => res.status(500).json({ error }));
