@@ -2,9 +2,9 @@ const mongoose = require('mongoose');
 
 const sauceSchema = mongoose.Schema({
   userId: { type: String, required: true }, //identifiant utilisateur
-  name: { type: String, minLength: '5', required: true }, //nom de la sauce
-  manufacturer : { type: String, minLength: '3', required: true }, //fabricant de la sauce
-  description: { type: String, minLength: '8', required: true }, //description de la sauce
+  name: { type: String, minLength: 5, required: true }, //nom de la sauce
+  manufacturer : { type: String, minLength: 3, required: true }, //fabricant de la sauce
+  description: { type: String, minLength: 10, required: true }, //description de la sauce
   mainPepper: { type: String, required: true }, //princpal ingrédient épicé
   imageUrl: { type: String, required: true }, //URL de l'image de sauce
   heat: {type: Number, required: true}, //valeur /10 du piquant de la sauce

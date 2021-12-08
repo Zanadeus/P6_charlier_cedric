@@ -4,9 +4,17 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const path = require('path');
 const app = express();
+require('dotenv').config();
 
-//Connection à la base de données MongoDB | ID: CCHAR - mdp:CCHARadmin
-mongoose.connect('mongodb+srv://CCHAR:CCHARadmin@p6-piiquante-cchar.nit78.mongodb.net/myFirstDatabase?retryWrites=true&w=majority',
+//limiter le nombre de requêtes (attaques DDOS)
+const rateLimit = require("express-rate-limit");
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100 // limit each IP to 100 requests per windowMs
+});
+app.use(limiter);
+
+mongoose.connect(process.env.DB_LOGIN,
   { useNewUrlParser: true,
     useUnifiedTopology: true })
   .then(() => console.log('Connexion à MongoDB réussie !'))

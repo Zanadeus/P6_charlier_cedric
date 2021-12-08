@@ -5,7 +5,7 @@ const uniqueValidator = require('mongoose-unique-validator');
 //Creation d'un modèle utilisateur
 const userSchema = mongoose.Schema({
   email: { type: String, required: true, unique: true },
-  password: { type: String, required: true }
+  password: { type: String, minLength: 8, required: true }
 });
 
 //Vérification du caractère unique de l'identifiant

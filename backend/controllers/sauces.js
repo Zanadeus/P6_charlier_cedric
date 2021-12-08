@@ -42,26 +42,6 @@ exports.createSauce = (req, res, next) => {
     //imageUrl: `${req.protocol}://127.0.0.1:8081/pictures/${req.file.filename}`,
   });
   
-  /*
-  //exclusion des caractères "' = > <", protection contre injection
-  const excludedCharacters = /['=<>]/ ;
-  console.log(sauceObject);
-  let count = 0;
-  for (var entries in sauceObject)
-  {
-    console.log("boucle for lancée");
-    if (sauceObject[entries].match(excludedCharacters) || sauceObject[entries] < 10)
-    {
-      console.log("there is something wrong");
-      throw 'Invalid entries, it should not contain \', =, < or >';
-    }
-    else
-    {
-      count++;
-      console.log(count);
-    }
-  }
-  */
   newSauce.save()
   .then(() => res.status(201).json({ message: 'Nouvelle sauce enregistréé !'}))
   .catch(error => res.status(400).json({ error }));
@@ -74,11 +54,14 @@ exports.modifySauce = (req, res, next) => {
       imageUrl: `${req.protocol}://${req.get('host')}/pictures/${req.file.filename}`
       //imageUrl: `${req.protocol}://127.0.0.1:8081/backend/pictures/${req.file.filename}`,
     } : { ...req.body };
+  Sauce.updateOne({ _id: req.params.id }, { ...sauceObject, _id: req.params.id })
+  .then(() => res.status(200).json({ message: 'Objet modifié !'}))
+  .catch(error => res.status(400).json({ error }));
+/*
   const jwt = require('jsonwebtoken');
   const token = req.headers.authorization.split(' ')[1];
   const decodedToken = jwt.verify(token, 'Bearer');
-
-  if (decodedToken.userId === sauceObject.userId) 
+  if (decodedToken.userId === sauceObject.userId)
   {
     Sauce.updateOne({ _id: req.params.id }, { ...sauceObject, _id: req.params.id })
     .then(() => res.status(200).json({ message: 'Objet modifié !'}))
@@ -86,9 +69,9 @@ exports.modifySauce = (req, res, next) => {
   }
   else
   {
-    throw 'Invalid user ID';
+    return res.status(401).json({ message : 'Invalid user ID' }));
   }
-  
+*/
 };
 
 exports.deleteSauce = (req, res, next) => 
@@ -96,10 +79,16 @@ exports.deleteSauce = (req, res, next) =>
   Sauce.findOne({ _id: req.params.id })
     .then(sauce => 
     {
-      const jwt = require('jsonwebtoken');
-      const token = req.headers.authorization.split(' ')[1];
-      const decodedToken = jwt.verify(token, 'Bearer');
-      if (decodedToken.userId === sauce.userId)
+      const filename = sauce.imageUrl.split('/pictures/')[1];
+      fs.unlink(`pictures/${filename}`, () => 
+      {
+        Sauce.deleteOne({ _id: req.params.id })
+          .then(() => res.status(200).json({ message: 'Sauce deleted !'}))
+          .catch(error => res.status(400).json({ error }));
+      });
+
+      /*
+      if (res.token.userId === sauce.userId)
       {
         const filename = sauce.imageUrl.split('/pictures/')[1];
         fs.unlink(`pictures/${filename}`, () => 
@@ -108,11 +97,13 @@ exports.deleteSauce = (req, res, next) =>
             .then(() => res.status(200).json({ message: 'Objet supprimé !'}))
             .catch(error => res.status(400).json({ error }));
         });
+      
       }
       else
       {
-        throw 'Invalid user ID';
+        return res.status(401).json({ message : 'Invalid user ID' }));;
       }
+      */
     })
     .catch(error => res.status(500).json({ error }));
 };
@@ -197,7 +188,7 @@ exports.setLike = (req, res, next) =>
             .catch(error => res.status(400).json({ error }));
         };
         /*
-        //fonction de développement, on restaure la base de données des likes
+        //fonction de développement, on remet à zéro la base de données des likes
         function resetLikes()
         {
           Sauce.updateOne(
@@ -223,7 +214,7 @@ exports.setLike = (req, res, next) =>
           case 1:
             if (userEverLikeIt == true) 
             {
-              //res.status(401).json({ message : 'Produit déjà liké ! Recliquer pour annuler le vote'});
+              //res.status(202).json({ message : 'Produit déjà liké ! Recliquer pour annuler le vote'});
               usersThatLike.splice(likePositionToDelete, 1);
               sauceLikes-- ;
               updateLikes();
@@ -238,7 +229,7 @@ exports.setLike = (req, res, next) =>
           case -1:
             if (userEverDislikeIt == true) 
             {
-              //res.status(401).json({ message : 'Produit déjà disliké ! Recliquer pour annuler le vote'});
+              //res.status(202).json({ message : 'Produit déjà disliké ! Recliquer pour annuler le vote'});
               usersThatDislike.splice(dislikePositionToDelete, 1);
               sauceDislikes-- ;
               updateLikes();
