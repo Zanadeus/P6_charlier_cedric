@@ -1,4 +1,3 @@
-//Constantes de fonctionnement
 const mongoose = require('mongoose');
 const uniqueValidator = require('mongoose-unique-validator');
 
@@ -8,8 +7,6 @@ const userSchema = mongoose.Schema({
   password: { type: String, minLength: 8, required: true }
 });
 
-//Vérification du caractère unique de l'identifiant
 userSchema.plugin(uniqueValidator);
 
-//Envoi du modèle utilisateur
 module.exports = mongoose.model('user', userSchema);

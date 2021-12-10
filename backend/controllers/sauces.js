@@ -61,21 +61,6 @@ exports.modifySauce = (req, res, next) => {
   Sauce.updateOne({ _id: req.params.id }, { ...sauceObject, _id: req.params.id })
   .then(() => res.status(200).json({ message: 'Objet modifié !'}))
   .catch(error => res.status(400).json({ error }));
-/*
-  const jwt = require('jsonwebtoken');
-  const token = req.headers.authorization.split(' ')[1];
-  const decodedToken = jwt.verify(token, 'Bearer');
-  if (decodedToken.userId === sauceObject.userId)
-  {
-    Sauce.updateOne({ _id: req.params.id }, { ...sauceObject, _id: req.params.id })
-    .then(() => res.status(200).json({ message: 'Objet modifié !'}))
-    .catch(error => res.status(400).json({ error }));
-  }
-  else
-  {
-    return res.status(401).json({ message : 'Invalid user ID' }));
-  }
-*/
 };
 
 exports.deleteSauce = (req, res, next) => 
@@ -94,24 +79,6 @@ exports.deleteSauce = (req, res, next) =>
           .then(() => res.status(200).json({ message: 'Sauce deleted !'}))
           .catch(error => res.status(400).json({ error }));
       });
-
-      /*
-      if (res.token.userId === sauce.userId)
-      {
-        const filename = sauce.imageUrl.split('/pictures/')[1];
-        fs.unlink(`pictures/${filename}`, () => 
-        {
-          Sauce.deleteOne({ _id: req.params.id })
-            .then(() => res.status(200).json({ message: 'Objet supprimé !'}))
-            .catch(error => res.status(400).json({ error }));
-        });
-      
-      }
-      else
-      {
-        return res.status(401).json({ message : 'Invalid user ID' }));;
-      }
-      */
     })
     .catch(error => res.status(500).json({ error }));
 };
@@ -263,9 +230,7 @@ exports.setLike = (req, res, next) =>
               usersThatDislike.splice(dislikePositionToDelete, 1);
               sauceDislikes-- ;
               updateLikes();
-            } 
-            
-            //resetLikes();
+            }
             break;
         }
       })

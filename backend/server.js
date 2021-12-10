@@ -1,15 +1,6 @@
 const http = require('http'); //OWASP : changer http en https, sous réserve d'avoir un certificat ssl
 const app = require('./app');
 
-/*
-const server = http.createServer(app);
-server.listen(process.env.PORT || 3000);
-/*
-const server = http.createServer((req, res) => {
-    res.end('Voilà la réponse du serveur !');
-});
-*/
-
 const normalizePort = val => {
   const port = parseInt(val, 10);
 
