@@ -2,7 +2,6 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/authToken');
-//const userIdTest = require('../middleware/authUserId');
 const multer = require('../middleware/multerConfig');
 
 //Chemin vers le contrôlleur utilisateur

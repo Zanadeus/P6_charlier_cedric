@@ -6,14 +6,7 @@ require('dotenv').config();
 
 exports.signup = (req, res, next) => 
 {
-  /*
-  if (user.findOne({ email: req.body.email }) !== 'undefined') 
-  {
-    return res.status(403).json({ message: 'email déjà utilisé' })
-  }
-  */
-
-  if (req.body.password.length < 8 && req.body.password.length > 30) 
+  if (req.body.password.length > 8 && req.body.password.length < 30)
   {
     return res.status(400).json({ message: 'Your password need a least 12 characters' })
   }

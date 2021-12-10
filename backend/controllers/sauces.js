@@ -49,11 +49,15 @@ exports.createSauce = (req, res, next) => {
 
 exports.modifySauce = (req, res, next) => {
   const sauceObject = req.file ?
-    {
-      ...JSON.parse(req.body.sauce),
-      imageUrl: `${req.protocol}://${req.get('host')}/pictures/${req.file.filename}`
-      //imageUrl: `${req.protocol}://127.0.0.1:8081/backend/pictures/${req.file.filename}`,
-    } : { ...req.body };
+  {
+    ...JSON.parse(req.body.sauce),
+    imageUrl: `${req.protocol}://${req.get('host')}/pictures/${req.file.filename}`
+    //imageUrl: `${req.protocol}://127.0.0.1:8081/backend/pictures/${req.file.filename}`,
+  } : { ...req.body };
+  if (res.locals.userId !== sauceObject.userId) 
+  {
+    return res.status(403).json({ message : 'Invalid user ID' });
+  }
   Sauce.updateOne({ _id: req.params.id }, { ...sauceObject, _id: req.params.id })
   .then(() => res.status(200).json({ message: 'Objet modifié !'}))
   .catch(error => res.status(400).json({ error }));
@@ -79,6 +83,10 @@ exports.deleteSauce = (req, res, next) =>
   Sauce.findOne({ _id: req.params.id })
     .then(sauce => 
     {
+      if (res.locals.userId !== sauce.userId) 
+      {
+        return res.status(403).json({ message : 'Invalid user ID' });
+      }
       const filename = sauce.imageUrl.split('/pictures/')[1];
       fs.unlink(`pictures/${filename}`, () => 
       {
