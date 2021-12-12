@@ -126,7 +126,6 @@ exports.setLike = (req, res, next) =>
         {
           for (let i = 0; i < usersThatLike.length; i++) 
           {
-            const element = usersThatLike[i];
             if (element === userID) 
             {
               userEverLikeIt = true;
@@ -136,7 +135,6 @@ exports.setLike = (req, res, next) =>
           }
           for (let i = 0; i < usersThatDislike.length; i++) 
           {
-            const element = usersThatDislike[i];
             if (element === userID) 
             {
               userEverDislikeIt = true;

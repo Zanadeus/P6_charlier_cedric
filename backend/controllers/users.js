@@ -6,9 +6,9 @@ require('dotenv').config();
 
 exports.signup = (req, res, next) => 
 {
-  if (req.body.password.length < 8 && req.body.password.length > 30)
+  if (req.body.password.length < 8 || req.body.password.length > 30)
   {
-    return res.status(400).json({ message: 'Your password need to contain 8 to 30 characters' })
+    return res.status(400).json({ message: 'Your password need to contain 8 to 30 characters' });
   }
   bcrypt.hash(req.body.password, 10)
     .then(hash => 

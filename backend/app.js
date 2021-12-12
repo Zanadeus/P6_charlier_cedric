@@ -1,20 +1,20 @@
-//Fonctionnement du serveur
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
 const app = express();
+const helmet = require("helmet");
 require('dotenv').config();
 
 //limiter le nombre de requêtes (attaques DDOS)
 const rateLimit = require("express-rate-limit");
 const antiDDOS = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
+  max: 100 // limiter à 100 requêtes
 });
 app.use(antiDDOS);
 const antiForcageId = rateLimit({
   windowMs: 5 * 60 * 1000,
-  max: 3
+  max: 5
 });
 
 //Connection à la BDD
@@ -46,7 +46,7 @@ const userRoads = require('./roads/users');
 const saucesRoads = require('./roads/sauces');
 
 app.use('/pictures', express.static(path.join(__dirname, 'pictures')));
-app.use('/api/auth', antiForcageId, userRoads);
-app.use('/api/sauces', saucesRoads);
+app.use('/api/auth', antiForcageId, helmet(), userRoads);
+app.use('/api/sauces', helmet(), saucesRoads);
 
 module.exports = app;
