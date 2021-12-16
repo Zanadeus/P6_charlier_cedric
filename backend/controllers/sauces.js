@@ -44,7 +44,7 @@ exports.createSauce = (req, res, next) => {
   
   newSauce.save()
   .then(() => res.status(201).json({ message: 'Nouvelle sauce enregistréé !'}))
-  .catch(error => res.status(400).json({ error }));
+  .catch(error => res.status(400).json({ message: error }));
 };
 
 exports.modifySauce = (req, res, next) => {
@@ -85,151 +85,66 @@ exports.deleteSauce = (req, res, next) =>
 
 exports.setLike = (req, res, next) => 
 {
-  Sauce.findOne({ _id: req.params.id })
-    .then(sauce =>
+  const userID = req.body.userId;
+  const sauceId = req.params.id;
+  
+  switch (req.body.like)
+  {
+    case 1:
+      Sauce.updateOne(
+        { _id: sauceId },
+        {
+          $push:{usersLiked: userID},
+          $inc:{likes: +1}
+        })
+        .then(() => res.status(200).json({ message: 'Sauce likée !'}))
+        .catch(error => res.status(400).json({ error }));
+    break;
+
+    case -1:
+      Sauce.updateOne(
+        { _id: sauceId },
+        {
+          $push:{usersDisliked: userID},
+          $inc:{dislikes: +1}
+        })
+        .then(() => res.status(200).json({ message: 'Sauce dislikée !'}))
+        .catch(error => res.status(400).json({ error }));
+    break;
+
+    case 0:
+      Sauce.findOne({_id: sauceId})
+      .then(sauce => 
       {
-        /*_______________________DEFINITION DES VARIABLES_______________________*/
-        let userID = req.body.userId;
-        let sauceLikes = sauce.likes;
-        let sauceDislikes = sauce.dislikes; 
-        //let usersThatLike
-        if (sauce.usersLiked == '') 
+        if (sauce.usersLiked.includes(userID)) 
         {
-          usersThatLike = [];
-        } 
-        else 
-        {
-          usersThatLike = sauce.usersLiked.split(',');
-        };
-        //let usersThatDislike
-        if (sauce.usersDisliked == '') 
-        {
-          usersThatDislike = [];
-        } 
-        else 
-        {
-          usersThatDislike = sauce.usersDisliked.split(',');
-        };
-        
-        //variables nécessaires pour isUserRate()
-        let userFound = false;
-        let deleteUserPosition = '';
-
-        let userEverLikeIt = false;
-        let userEverDislikeIt = false;
-        let likePositionToDelete = '';
-        let dislikePositionToDelete = '';
-
-        /*_______________________DEFINITION DES FONCTIONS_______________________*/
-        //On recherche si l'utilisateur a déja noté la sauce
-        function isUserRateIt() 
-        {
-          for (let i = 0; i < usersThatLike.length; i++) 
-          {
-            if (element === userID) 
+          Sauce.updateOne(
+            { _id: sauceId },
             {
-              userEverLikeIt = true;
-              console.log('userThatLike = '+userEverLikeIt);
-              likePositionToDelete = i;
-            }
-          }
-          for (let i = 0; i < usersThatDislike.length; i++) 
-          {
-            if (element === userID) 
-            {
-              userEverDislikeIt = true;
-              console.log('userThatDislike = '+userEverDislikeIt);
-              dislikePositionToDelete = i;
-            }
-          }
+              $pull:{usersLiked: userID},
+              $inc:{likes: -1}
+            })
+            .then(() => res.status(200).json({ message: 'Like retiré !'}))
+            .catch(error => res.status(400).json({ error }));
         }
-        //On met à jour les likes dans la base données
-        function updateLikes()
+        if (sauce.usersDisliked.includes(userID)) 
         {
           Sauce.updateOne(
             { _id: req.params.id },
             {
-              $set:
-              { 
-                likes: sauceLikes,
-                dislikes: sauceDislikes,
-                usersLiked: usersThatLike.join(','),
-                usersDisliked: usersThatDislike.join(',')
-              }
+              $pull:{usersDisliked: userID},
+              $inc:{dislikes: -1}
             })
-            .then(() => res.status(200).json({ message: 'Mise à jour effectuée'}))
+            .then(() => res.status(200).json({ message: 'Dislike retiré'}))
             .catch(error => res.status(400).json({ error }));
-        };
-        /*
-        //fonction de développement, on remet à zéro la base de données des likes
-        function resetLikes()
-        {
-          Sauce.updateOne(
-            { _id: req.params.id },
-            {
-              $set:
-              { 
-                likes: `0`,
-                dislikes: `0`,
-                usersLiked: ``,
-                usersDisliked: ``
-              }
-            })
-            .then(() => res.status(200).json({ message: 'Mise à jour effectuée'}))
-            .catch(error => res.status(400).json({ error }));
-        };
-        */
-        
-        /*_______________________COEUR DU LOGICIEL_______________________*/
-        isUserRateIt();
-        switch (req.body.like)
-        {
-          case 1:
-            if (userEverLikeIt == true) 
-            {
-              //res.status(202).json({ message : 'Produit déjà liké ! Recliquer pour annuler le vote'});
-              usersThatLike.splice(likePositionToDelete, 1);
-              sauceLikes-- ;
-              updateLikes();
-            } 
-            else 
-            {
-              usersThatLike.push(userID);
-              sauceLikes++ ;
-              updateLikes();
-            }
-            break;
-          case -1:
-            if (userEverDislikeIt == true) 
-            {
-              //res.status(202).json({ message : 'Produit déjà disliké ! Recliquer pour annuler le vote'});
-              usersThatDislike.splice(dislikePositionToDelete, 1);
-              sauceDislikes-- ;
-              updateLikes();
-            } 
-            else 
-            {
-              usersThatDislike.push(userID);
-              sauceDislikes++ ;
-              updateLikes();
-            }
-            break;
-          default:
-            console.log("la requête 0 a été sélectionnée.");
-            
-            if (userEverLikeIt == true) 
-            {
-              usersThatLike.splice(likePositionToDelete, 1);
-              sauceLikes-- ;
-              updateLikes();
-            } 
-            if (userEverDislikeIt == true) 
-            {
-              usersThatDislike.splice(dislikePositionToDelete, 1);
-              sauceDislikes-- ;
-              updateLikes();
-            }
-            break;
         }
       })
+      .catch(error => res.status(400).json({ error }));
+      break;
+
+      default:
+        console.log('case non configuré');
+      break
+
+  }
 };
